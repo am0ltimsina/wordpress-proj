@@ -1,0 +1,33 @@
+---
+# cPanel configuration file for PHP application
+
+# Specify the deployment branch
+deployment:
+  production:
+    branch: main
+
+# Specify environment variables (if any)
+env:
+  APP_ENV: production
+  APP_DEBUG: false
+
+# Commands to execute before the deployment starts
+pre_deploy:
+  - echo "Starting pre-deploy script"
+  - composer install --no-dev --optimize-autoloader
+  - php artisan migrate --force
+  - php artisan config:cache
+  - php artisan route:cache
+
+# Commands to execute during deployment
+deploy:
+  - echo "Starting deploy script"
+  - cp .env.production .env
+
+# Commands to execute after the deployment completes
+post_deploy:
+  - echo "Starting post-deploy script"
+  - chown -R $USER:$USER storage
+  - chown -R $USER:$USER bootstrap/cache
+  - find . -type f -exec chmod 644 {} \;
+  - find . -type d -exec chmod 755 {} \;
